@@ -14,6 +14,16 @@ Open:
 http://localhost:4435
 ```
 
+## Published Image
+
+The GitHub Actions workflow publishes the `main` branch image to GitHub Container Registry:
+
+```text
+ghcr.io/dasutin/cookie-hq:latest
+```
+
+Use port `4435` and persist `/data` for the SQLite database and uploaded/generated files.
+
 ## Data Persistence
 
 `docker-compose.yml` mounts the `cookie_hq_data` volume at `/data`.

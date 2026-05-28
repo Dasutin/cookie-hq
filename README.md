@@ -27,6 +27,12 @@ docker compose up --build
 
 The production app runs on `http://localhost:4435`. SQLite and uploaded/generated files are stored in the `cookie_hq_data` Docker volume.
 
+Published container image:
+
+```text
+ghcr.io/dasutin/cookie-hq:latest
+```
+
 ## Scripts
 
 ```powershell

@@ -1,0 +1,150 @@
+:root {
+  color-scheme: light dark;
+}
+
+body {
+  margin: 0;
+  background: light-dark(var(--mantine-color-gray-0), var(--mantine-color-dark-8));
+}
+
+.app-header {
+  border-bottom: 1px solid light-dark(var(--mantine-color-gray-2), var(--mantine-color-dark-5));
+  background: light-dark(rgba(255, 255, 255, 0.92), rgba(20, 21, 23, 0.92));
+  backdrop-filter: blur(12px);
+}
+
+.header-inner {
+  align-items: center;
+  display: flex;
+  height: 100%;
+  justify-content: space-between;
+}
+
+.brand-mark {
+  align-items: center;
+  background: light-dark(var(--mantine-color-teal-0), var(--mantine-color-teal-9));
+  border: 1px solid light-dark(var(--mantine-color-teal-2), var(--mantine-color-teal-7));
+  color: light-dark(var(--mantine-color-teal-8), var(--mantine-color-teal-1));
+  display: grid;
+  height: 42px;
+  place-items: center;
+  width: 42px;
+}
+
+.app-title {
+  font-size: 1.45rem;
+  letter-spacing: 0;
+  line-height: 1.1;
+}
+
+.main-shell {
+  padding-block: 24px 40px;
+}
+
+.tabs-row {
+  gap: 12px;
+}
+
+.desktop-table,
+.empty-panel,
+.error-panel,
+.mobile-card {
+  border: 1px solid light-dark(var(--mantine-color-gray-2), var(--mantine-color-dark-5));
+  box-shadow: 0 10px 32px light-dark(rgba(29, 45, 56, 0.06), rgba(0, 0, 0, 0.18));
+}
+
+.desktop-table,
+.empty-panel,
+.error-panel {
+  padding: 8px;
+}
+
+.empty-panel,
+.error-panel {
+  margin-top: 16px;
+  padding: 24px;
+}
+
+.error-panel {
+  border-color: light-dark(var(--mantine-color-red-3), var(--mantine-color-red-8));
+}
+
+.actions-heading {
+  text-align: right;
+}
+
+.cutter-identity {
+  min-width: 220px;
+}
+
+.cutter-thumbnail {
+  aspect-ratio: 1;
+  background:
+    linear-gradient(45deg, light-dark(var(--mantine-color-gray-1), var(--mantine-color-dark-6)) 25%, transparent 25%),
+    linear-gradient(-45deg, light-dark(var(--mantine-color-gray-1), var(--mantine-color-dark-6)) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, light-dark(var(--mantine-color-gray-1), var(--mantine-color-dark-6)) 75%),
+    linear-gradient(-45deg, transparent 75%, light-dark(var(--mantine-color-gray-1), var(--mantine-color-dark-6)) 75%);
+  background-color: light-dark(var(--mantine-color-white), var(--mantine-color-dark-7));
+  background-position:
+    0 0,
+    0 6px,
+    6px -6px,
+    -6px 0;
+  background-size: 12px 12px;
+  border: 1px solid light-dark(var(--mantine-color-gray-3), var(--mantine-color-dark-4));
+  height: 64px;
+  object-fit: contain;
+  width: 64px;
+}
+
+.cutter-name-copy {
+  min-width: 0;
+}
+
+.row-actions {
+  min-width: 174px;
+}
+
+.mobile-list {
+  display: none;
+}
+
+.mobile-card {
+  padding: 14px;
+}
+
+@media (max-width: 760px) {
+  .app-title {
+    font-size: 1.2rem;
+  }
+
+  .header-inner {
+    padding-inline: 16px;
+  }
+
+  .main-shell {
+    padding: 18px 14px 32px;
+  }
+
+  .tabs-row {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .desktop-table {
+    display: none;
+  }
+
+  .mobile-list {
+    display: flex;
+  }
+
+  .row-actions {
+    justify-content: flex-start;
+    min-width: 0;
+  }
+
+  .cutter-identity {
+    min-width: 0;
+  }
+}

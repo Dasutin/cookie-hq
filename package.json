@@ -1,0 +1,61 @@
+{
+  "name": "cookie-hq",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Cookie cutter request tracker for Fusion 360 and 3D printing.",
+  "scripts": {
+    "dev": "concurrently \"npm:dev:server\" \"npm:dev:client\"",
+    "dev:client": "vite --host 0.0.0.0",
+    "dev:server": "tsx watch src/server/index.ts",
+    "build": "npm run build:client && npm run build:server",
+    "build:client": "vite build",
+    "build:server": "npm run clean:server && tsc -p tsconfig.server.json",
+    "clean:server": "node -e \"require('node:fs').rmSync('dist/server',{recursive:true,force:true})\"",
+    "start": "node dist/server/server/index.js",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.server.json --noEmit",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "@mantine/core": "^9.2.2",
+    "@mantine/dates": "^9.2.2",
+    "@mantine/hooks": "^9.2.2",
+    "adm-zip": "^0.5.17",
+    "dayjs": "^1.11.19",
+    "express": "^5.2.1",
+    "lucide-react": "^0.562.0",
+    "multer": "^2.0.2",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
+    "sharp": "^0.34.5",
+    "zod": "^4.2.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.2",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/adm-zip": "^0.5.8",
+    "@types/express": "^5.0.6",
+    "@types/multer": "^2.0.1",
+    "@types/node": "^24.10.2",
+    "@types/react": "^19.2.7",
+    "@types/react-dom": "^19.2.3",
+    "@types/supertest": "^6.0.3",
+    "@vitejs/plugin-react": "^5.1.2",
+    "concurrently": "^9.2.1",
+    "eslint": "^9.39.2",
+    "globals": "^16.5.0",
+    "jsdom": "^26.1.0",
+    "supertest": "^7.1.4",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.50.0",
+    "vite": "^7.2.7",
+    "vitest": "^4.0.16"
+  },
+  "engines": {
+    "node": ">=24"
+  }
+}

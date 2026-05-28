@@ -1,0 +1,15 @@
+services:
+  cookie-hq:
+    build: .
+    container_name: cookie-hq
+    restart: unless-stopped
+    environment:
+      PORT: "4435"
+      DATA_DIR: /data
+    ports:
+      - "4435:4435"
+    volumes:
+      - cookie_hq_data:/data
+
+volumes:
+  cookie_hq_data:

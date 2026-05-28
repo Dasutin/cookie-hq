@@ -41,6 +41,8 @@ npm run build
 3. Unarchive it.
 4. Confirm the app asks for a new due date before returning it to `Requests`.
 5. Confirm existing PNG, Fusion, and print files are preserved.
+6. Archive it again, click delete from `Archived`, and confirm a warning dialog appears.
+7. Confirm delete removes it from `Archived` and the files can no longer be downloaded.
 
 ## Responsive And Theme Checks
 

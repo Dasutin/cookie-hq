@@ -157,6 +157,53 @@ describe('Cookie HQ API', () => {
     expect(created.body.cutter.mirrorImage).toBe(true);
   });
 
+  it('only permanently deletes archived cutters and removes their stored files', async () => {
+    const dataDir = await fs.mkdtemp(path.join(os.tmpdir(), 'cookie-hq-api-'));
+    const uploadDir = path.join(dataDir, 'uploads');
+    const app = createApp({
+      config: {
+        dataDir,
+        dbPath: path.join(dataDir, 'test.sqlite'),
+        uploadDir
+      }
+    });
+    const png = await sharp({
+      create: {
+        width: 2,
+        height: 2,
+        channels: 4,
+        background: { r: 120, g: 210, b: 160, alpha: 1 }
+      }
+    })
+      .png()
+      .toBuffer();
+
+    const created = await request(app)
+      .post('/api/cutters')
+      .field('name', 'Star')
+      .field('maxSizeInches', '3.5')
+      .field('sizeAxis', 'width')
+      .field('mirrorImage', 'false')
+      .field('dueDate', dateDaysFromNow(8))
+      .attach('image', png, {
+        filename: 'star.png',
+        contentType: 'image/png'
+      })
+      .expect(201);
+
+    const id = created.body.cutter.id as string;
+    const storedPng = created.body.cutter.pngFile.storedName as string;
+
+    await request(app).delete(`/api/cutters/${id}`).expect(409);
+    await request(app).patch(`/api/cutters/${id}`).send({ archived: true }).expect(200);
+    await request(app).delete(`/api/cutters/${id}`).expect(204);
+
+    const archived = await request(app).get('/api/cutters?archived=true').expect(200);
+    expect(archived.body.cutters).toHaveLength(0);
+    await request(app).get(`/api/cutters/${id}/files/png`).expect(404);
+    await expect(fs.access(path.join(uploadDir, storedPng))).rejects.toMatchObject({ code: 'ENOENT' });
+  });
+
   it('requires a request image and rejects past due dates', async () => {
     const dataDir = await fs.mkdtemp(path.join(os.tmpdir(), 'cookie-hq-api-'));
     const app = createApp({

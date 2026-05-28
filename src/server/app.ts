@@ -1,13 +1,15 @@
 import express, { type NextFunction, type Request, type Response } from 'express';
 import fs from 'node:fs';
+import fsp from 'node:fs/promises';
 import multer from 'multer';
 import path from 'node:path';
-import type { FileKind } from '../shared/types';
+import type { Cutter, CutterFile, FileKind } from '../shared/types';
 import { getConfig, type AppConfig } from './config';
 import {
   attachFile,
   clearFile,
   createCutter,
+  deleteArchivedCutter,
   getCutter,
   listCutters,
   openDatabase,
@@ -90,6 +92,21 @@ export function createApp(options: CreateAppOptions = {}): express.Express {
 
     return res.json({ cutter });
   });
+
+  app.delete('/api/cutters/:id', asyncRoute(async (req, res) => {
+    const result = deleteArchivedCutter(db, String(req.params.id));
+
+    if (result.status === 'not_found') {
+      return res.status(404).json({ error: 'Cookie cutter request not found.' });
+    }
+
+    if (result.status === 'not_archived') {
+      return res.status(409).json({ error: 'Archive the request before deleting it.' });
+    }
+
+    await removeStoredFiles(config, result.cutter);
+    return res.status(204).send();
+  }));
 
   app.post('/api/cutters/:id/files/fusion', upload.single('file'), fileUploadHandler(db, config, 'fusion'));
   app.post('/api/cutters/:id/files/print', upload.single('file'), fileUploadHandler(db, config, 'print'));
@@ -183,4 +200,26 @@ function asyncRoute(
   return (req, res, next) => {
     void handler(req, res, next).catch(next);
   };
+}
+
+async function removeStoredFiles(config: AppConfig, cutter: Cutter): Promise<void> {
+  const files = [cutter.pngFile, cutter.fusionFile, cutter.printFile, cutter.modelPreviewFile].filter(
+    (file): file is CutterFile => Boolean(file)
+  );
+
+  await Promise.all(
+    files.map(async (file) => {
+      try {
+        await fsp.unlink(getStoredFilePath(config.uploadDir, file.storedName));
+      } catch (err) {
+        if (!isMissingFileError(err)) {
+          throw err;
+        }
+      }
+    })
+  );
+}
+
+function isMissingFileError(err: unknown): boolean {
+  return Boolean(err && typeof err === 'object' && 'code' in err && err.code === 'ENOENT');
 }

@@ -32,6 +32,7 @@ import {
   Pencil,
   Plus,
   RotateCcw,
+  Trash2,
   Upload
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
@@ -41,6 +42,7 @@ import type { Cutter, SizeAxis } from '../shared/types';
 import {
   createCutter,
   cutterPreviewUrl,
+  deleteCutter,
   downloadFile,
   listCutters,
   unarchiveCutter,
@@ -73,6 +75,7 @@ export function App(): JSX.Element {
   const [newOpened, newModal] = useDisclosure(false);
   const [editCutter, setEditCutter] = useState<Cutter | null>(null);
   const [unarchiveTarget, setUnarchiveTarget] = useState<Cutter | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<Cutter | null>(null);
 
   async function refresh(): Promise<void> {
     setError(null);
@@ -157,6 +160,7 @@ export function App(): JSX.Element {
                 loading={loading}
                 onEdit={setEditCutter}
                 onUnarchive={setUnarchiveTarget}
+                onDelete={setDeleteTarget}
               />
             </Tabs.Panel>
           </Tabs>
@@ -201,6 +205,17 @@ export function App(): JSX.Element {
           })
         }
       />
+      <DeleteCutterModal
+        cutter={deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={(cutter) =>
+          mutate(async () => {
+            await deleteCutter(cutter.id);
+            setDeleteTarget(null);
+            setActiveTab('archived');
+          })
+        }
+      />
     </AppShell>
   );
 }
@@ -212,6 +227,7 @@ interface CutterCollectionProps {
   onEdit: (cutter: Cutter) => void;
   onArchive?: (cutter: Cutter) => void;
   onUnarchive?: (cutter: Cutter) => void;
+  onDelete?: (cutter: Cutter) => void;
 }
 
 function CutterCollection(props: CutterCollectionProps): JSX.Element {
@@ -268,14 +284,18 @@ function CutterCollection(props: CutterCollectionProps): JSX.Element {
       <Stack className="mobile-list" gap="sm">
         {props.cutters.map((cutter) => (
           <Paper className="mobile-card" key={cutter.id}>
-            <Group justify="space-between" align="start" gap="sm">
+            <div className="mobile-card-main">
               <CutterIdentity cutter={cutter} showSize />
+            </div>
+            <Group className="mobile-card-meta" gap="xs" align="center">
               <Badge variant="light" leftSection={<CalendarClock size={12} />}>
                 {formatDate(cutter.dueDate)}
               </Badge>
+              <FileBadges cutter={cutter} />
             </Group>
-            <FileBadges cutter={cutter} />
-            <RowActions {...props} cutter={cutter} />
+            <div className="mobile-card-actions">
+              <RowActions {...props} cutter={cutter} />
+            </div>
           </Paper>
         ))}
       </Stack>
@@ -330,7 +350,7 @@ interface RowActionsProps extends CutterCollectionProps {
   cutter: Cutter;
 }
 
-function RowActions({ cutter, archived, onEdit, onArchive, onUnarchive }: RowActionsProps): JSX.Element {
+function RowActions({ cutter, archived, onEdit, onArchive, onUnarchive, onDelete }: RowActionsProps): JSX.Element {
   return (
     <Group gap={6} justify="flex-end" wrap="nowrap" className="row-actions">
       <Tooltip label="Download PNG">
@@ -379,16 +399,28 @@ function RowActions({ cutter, archived, onEdit, onArchive, onUnarchive }: RowAct
           </Tooltip>
         </>
       ) : (
-        <Tooltip label="Unarchive">
-          <ActionIcon
-            variant="subtle"
-            color="teal"
-            aria-label={`Unarchive ${cutter.name}`}
-            onClick={() => onUnarchive?.(cutter)}
-          >
-            <RotateCcw size={18} />
-          </ActionIcon>
-        </Tooltip>
+        <>
+          <Tooltip label="Unarchive">
+            <ActionIcon
+              variant="subtle"
+              color="teal"
+              aria-label={`Unarchive ${cutter.name}`}
+              onClick={() => onUnarchive?.(cutter)}
+            >
+              <RotateCcw size={18} />
+            </ActionIcon>
+          </Tooltip>
+          <Tooltip label="Delete">
+            <ActionIcon
+              variant="subtle"
+              color="red"
+              aria-label={`Delete ${cutter.name}`}
+              onClick={() => onDelete?.(cutter)}
+            >
+              <Trash2 size={18} />
+            </ActionIcon>
+          </Tooltip>
+        </>
       )}
     </Group>
   );
@@ -606,6 +638,59 @@ function UnarchiveModal({ cutter, onClose, onSubmit }: UnarchiveModalProps): JSX
         <Button onClick={() => void handleSubmit()} loading={submitting}>
           Add back to Requests
         </Button>
+      </Stack>
+    </Modal>
+  );
+}
+
+interface DeleteCutterModalProps {
+  cutter: Cutter | null;
+  onClose: () => void;
+  onConfirm: (cutter: Cutter) => Promise<void>;
+}
+
+function DeleteCutterModal({ cutter, onClose, onConfirm }: DeleteCutterModalProps): JSX.Element {
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (cutter) {
+      setError(null);
+    }
+  }, [cutter]);
+
+  async function handleConfirm(): Promise<void> {
+    if (!cutter) {
+      return;
+    }
+
+    setSubmitting(true);
+    setError(null);
+    try {
+      await onConfirm(cutter);
+    } catch (err) {
+      setError(getErrorMessage(err));
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  return (
+    <Modal opened={Boolean(cutter)} onClose={onClose} title="Delete archived item" centered>
+      <Stack>
+        <Text fw={600}>{cutter?.name}</Text>
+        <Text size="sm" c="dimmed">
+          This permanently deletes the archived request and its uploaded files. This cannot be undone.
+        </Text>
+        {error ? <Text c="red">{error}</Text> : null}
+        <Group justify="flex-end">
+          <Button variant="default" onClick={onClose} disabled={submitting}>
+            Cancel
+          </Button>
+          <Button color="red" onClick={() => void handleConfirm()} loading={submitting}>
+            Delete
+          </Button>
+        </Group>
       </Stack>
     </Modal>
   );

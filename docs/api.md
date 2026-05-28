@@ -52,6 +52,10 @@ JSON body:
 
 The due date is required and must be today or later.
 
+`DELETE /api/cutters/:id`
+
+Permanently deletes an archived request and its stored files. Active requests return `409`; archive first before deleting.
+
 ## Files
 
 `POST /api/cutters/:id/files/fusion`

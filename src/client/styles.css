@@ -110,6 +110,9 @@ body {
 }
 
 .mobile-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
   padding: 14px;
 }
 
@@ -146,5 +149,44 @@ body {
 
   .cutter-identity {
     min-width: 0;
+  }
+
+  .mobile-card-main {
+    min-width: 0;
+  }
+
+  .mobile-card-main .cutter-identity {
+    align-items: flex-start;
+    width: 100%;
+  }
+
+  .mobile-card-main .cutter-thumbnail {
+    flex: 0 0 72px;
+    height: 72px;
+    width: 72px;
+  }
+
+  .mobile-card-main .cutter-name-copy {
+    padding-top: 2px;
+  }
+
+  .mobile-card-meta {
+    align-items: center;
+    border-top: 1px solid light-dark(var(--mantine-color-gray-2), var(--mantine-color-dark-5));
+    flex-wrap: wrap;
+    padding-top: 10px;
+  }
+
+  .mobile-card-actions {
+    border-top: 1px solid light-dark(var(--mantine-color-gray-2), var(--mantine-color-dark-5));
+    display: flex;
+    justify-content: flex-end;
+    padding-top: 10px;
+  }
+
+  .mobile-card-actions .row-actions {
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: flex-end;
   }
 }

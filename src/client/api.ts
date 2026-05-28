@@ -58,6 +58,16 @@ export async function unarchiveCutter(id: string, dueDate: string): Promise<Cutt
   return data.cutter;
 }
 
+export async function deleteCutter(id: string): Promise<void> {
+  const response = await fetch(`/api/cutters/${id}`, {
+    method: 'DELETE'
+  });
+
+  if (!response.ok) {
+    await parseResponse<never>(response);
+  }
+}
+
 export async function uploadCutterFile(id: string, kind: 'fusion' | 'print', file: File): Promise<Cutter> {
   const body = new FormData();
   body.set('file', file);

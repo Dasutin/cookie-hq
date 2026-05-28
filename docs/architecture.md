@@ -6,8 +6,8 @@ Cookie HQ is a single-container web app with a React frontend served by an Expre
 
 ## Runtime Components
 
-- React client: Mantine UI, responsive table/card views, modals for create/edit/unarchive.
-- Express API: request CRUD, archive/unarchive, file upload/download, static client hosting.
+- React client: Mantine UI, responsive table/card views, modals for create/edit/unarchive/delete.
+- Express API: request CRUD, archive/unarchive/delete, file upload/download, static client hosting.
 - SQLite database: one `cutters` table containing request metadata and file metadata.
 - File storage: generated PNGs, uploaded Fusion files, print files, and extracted model previews under `DATA_DIR/uploads`.
 
@@ -26,6 +26,8 @@ Each cutter has:
 - Optional 3MF model preview metadata.
 
 There is no status field. Items are active requests when `archived=false` and archived items when `archived=true`.
+
+Archived items can be permanently deleted from the Archived view. Delete removes the SQLite row and attempts to remove the generated/uploaded files from storage.
 
 ## Image And Model Preview Flow
 

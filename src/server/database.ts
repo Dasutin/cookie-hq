@@ -53,6 +53,11 @@ export interface StoredFileInput {
   uploadedAt: string;
 }
 
+export type DeleteArchivedCutterResult =
+  | { status: 'not_found' }
+  | { status: 'not_archived'; cutter: Cutter }
+  | { status: 'deleted'; cutter: Cutter };
+
 export function openDatabase(dbPath: string): CookieDatabase {
   fs.mkdirSync(path.dirname(dbPath), { recursive: true });
   const db = new DatabaseSync(dbPath);
@@ -214,6 +219,20 @@ export function unarchiveCutter(db: CookieDatabase, id: string, dueDate: string)
   `).run(dueDate, new Date().toISOString(), id);
 
   return getCutterOrThrow(db, id);
+}
+
+export function deleteArchivedCutter(db: CookieDatabase, id: string): DeleteArchivedCutterResult {
+  const cutter = getCutter(db, id);
+  if (!cutter) {
+    return { status: 'not_found' };
+  }
+
+  if (!cutter.archived) {
+    return { status: 'not_archived', cutter };
+  }
+
+  db.prepare('DELETE FROM cutters WHERE id = ?').run(id);
+  return { status: 'deleted', cutter };
 }
 
 export function attachFile(db: CookieDatabase, id: string, kind: FileKind, file: StoredFileInput): Cutter | null {
